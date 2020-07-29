@@ -1,0 +1,7 @@
+pyMelt
+numpy
+pymultinest
+scipy
+json
+os
+pandas
