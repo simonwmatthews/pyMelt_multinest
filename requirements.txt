@@ -1,4 +1,4 @@
-simonwmatthews/pyMelt
+pyMelt
 numpy
 pymultinest
 scipy
