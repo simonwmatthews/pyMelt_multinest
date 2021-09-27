@@ -145,7 +145,7 @@ class inversion:
         if run_model == True:
             proportions = [(1.0-x[5]-x[4]),x[4],x[5]]
 
-            mantle = m.mantle(self.lithologies,proportions,self.lithology_names)
+            mantle = m.Mantle(self.lithologies,proportions,self.lithology_names)
             if self.SpreadingCenter == False:
                 results = mantle.AdiabaticMelt_1D(x[0],Pend=x[2],Pstart=10,ReportSSS=False)
             else:
