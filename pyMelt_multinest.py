@@ -118,9 +118,7 @@ class inversion:
                      + 'and a continental rift.')
 
         if self.Traces is False and self.MORBmelts is True:
-            sys.exit(
-                'Cannot model pyroxenite traces without considering all traces.'
-                )
+            sys.exit('Cannot model pyroxenite traces without considering all traces.')
 
         variables = ['Tp', 'DeltaS', 'P_lith', 'P_cryst', 'F_px', 'F_hz']
 
