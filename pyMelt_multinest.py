@@ -128,10 +128,16 @@ class inversion:
             if ('Qv' or 'Qb' or 'Qm') in self.data.keys():
                 variables.extend(['r', 'mu'])
 
-            self.rho = pd.read_csv(DensityFile, sep='\t')
-            self.rhoLz = interp1d(self.rho.Tp, self.rho.klb1, fill_value='extrapolate')
-            self.rhoHz = interp1d(self.rho.Tp, self.rho.hz, fill_value='extrapolate')
-            self.rhoPx = interp1d(self.rho.Tp, self.rho[self.buoyancyPx], fill_value='extrapolate')
+            self.rho = pd.read_csv(DensityFile)
+            self.rhoLz = interp1d(self.rho['Tp'],
+                                  self.rho['klb1'],
+                                  fill_value='extrapolate')
+            self.rhoHz = interp1d(self.rho['Tp'],
+                                  self.rho['hz'],
+                                  fill_value='extrapolate')
+            self.rhoPx = interp1d(self.rho['Tp'],
+                                  self.rho[self.buoyancyPx],
+                                  fill_value='extrapolate')
 
         if self.Passive is False:
             variables.extend(['lambda', 'amplitude'])
@@ -214,12 +220,14 @@ class inversion:
 
             if self.SpreadingCentre is True:
                 results = mantle.adiabaticMelt(Tp=x[self.var_list.index('Tp')],
-                                               dP=0.004,
+                                               Pstart=8.0,
+                                               dP=-0.004,
                                                ReportSSS=False)
             else:
                 results = mantle.adiabaticMelt(Tp=x[self.var_list.index('Tp')],
+                                               Pstart=8.0,
                                                Pend=x[self.var_list.index('P_lith')],
-                                               dP=0.004,
+                                               dP=-0.004,
                                                ReportSSS=False)
 
             if self.Traces is True:
@@ -287,51 +295,56 @@ class inversion:
                     geosetting = m.geosettings.spreadingCentre(
                         results, weightingFunction=m.geosettings.weighting_expdecay,
                         weighting_wavelength=x[self.var_list.index('lambda')],
-                        weighting_amplitude=x[self.var_list('amplitude')])
+                        weighting_amplitude=x[self.var_list.index('amplitude')])
                 elif self.ContinentalRift is True:
                     geosetting = m.geosettings.spreadingCentre(
                         results, P_lithosphere=x[self.var_list.index('P_lith')],
                         extract_melt=True,
                         weightingFunction=m.geosettings.weighting_expdecay,
                         weighting_wavelength=x[self.var_list.index('lambda')],
-                        weighting_amplitude=x[self.var_list('amplitude')])
+                        weighting_amplitude=x[self.var_list.index('amplitude')])
                 elif ('Qv' or 'Qb' or 'Qm') in self.data.keys():
                     geosetting = m.geosettings.intraPlate(
                         results, P_lithosphere=x[self.var_list.index('P_lith')],
                         weightingFunction=m.geosettings.weighting_expdecay,
                         weighting_wavelength=x[self.var_list.index('lambda')],
-                        weighting_amplitude=x[self.var_list('amplitude')])
+                        weighting_amplitude=x[self.var_list.index('amplitude')])
             likelihood = 0
 
             if self.buoyancy is True or ('Qv' or 'Qb' or 'Qm') in self.data.keys():
-                ambient_rho = ((1.0 - x[self.var_list('ambientPx')] -
-                                x[self.var_list('ambientHz')]) *
-                               self.rhoLz(x[self.var_list('ambientTp')]) +
-                               x[self.var_list('ambientPx')] *
-                               self.rhoPx(x[self.var_list('ambientTp')]) +
-                               x[self.var_list('ambientHz')] *
-                               self.rhoHz(x[self.var_list('ambientTp')])
+                ambient_rho = ((1.0 - x[self.var_list.index('ambientPx')] -
+                                x[self.var_list.index('ambientHz')]) *
+                               self.rhoLz(x[self.var_list.index('ambientTp')]) +
+                               x[self.var_list.index('ambientPx')] *
+                               self.rhoPx(x[self.var_list.index('ambientTp')]) +
+                               x[self.var_list.index('ambientHz')] *
+                               self.rhoHz(x[self.var_list.index('ambientTp')])
                                )
-                model_rho = ((1.0 - x[self.var_list('F_px')] - x[self.var_list('F_hz')]) *
-                             self.rhoLz(x[self.var_list('Tp')]) +
-                             x[self.var_list('F_px')] * self.rhoPx(x[self.var_list('Tp')]) +
-                             x[self.var_list('F_hz')] * self.rhoHz(x[self.var_list('Tp')])
-                             )
+                model_rho = ((1.0 - x[self.var_list.index('F_px')] -
+                              x[self.var_list.index('F_hz')]) *
+                             self.rhoLz(x[self.var_list.index('Tp')]) +
+                             x[self.var_list.index('F_px')] *
+                             self.rhoPx(x[self.var_list.index('Tp')]) +
+                             x[self.var_list.index('F_hz')] *
+                             self.rhoHz(x[self.var_list.index('Tp')]))
                 buoyancy = ambient_rho - model_rho
 
             if 'Qv' in self.data.keys():
-                Qv = np.pi/8 * (buoyancy * 9.81 * x[self.var_list('r')]**4)/x[self.var_list('mu')]
+                Qv = np.pi/8 * (buoyancy * 9.81 *
+                                x[self.var_list.index('r')]**4)/x[self.var_list.index('mu')]
                 likelihood = (likelihood + (-0.5 * (np.log(2 * np.pi * self.data['Qv'][1]**2)) -
                                             (self.data['Qv'][0] - Qv)**2 /
                                             (2*self.data['Qv'][1]**2)))
             elif 'Qb' in self.data.keys():
-                Qv = np.pi/8 * (buoyancy * 9.81 * x[self.var_list('r')]**4)/x[self.var_list('mu')]
+                Qv = np.pi/8 * (buoyancy * 9.81 *
+                                x[self.var_list.index('r')]**4)/x[self.var_list.index('mu')]
                 Qb = (Qv/1e3) * model_rho * 30e-6 * (x[0]-x[6])
                 likelihood = (
                     likelihood + (-0.5 * (np.log(2 * np.pi * self.data['Qb'][1]**2)) -
                                   (self.data['Qb'][0] - Qb)**2 / (2 * self.data['Qb'][1]**2)))
             elif 'Qm' in self.data.keys():
-                Qv = np.pi/8 * (buoyancy * 9.81 * x[self.var_list('r')]**4)/x[self.var_list('mu')]
+                Qv = np.pi/8 * (buoyancy * 9.81 *
+                                x[self.var_list.index('r')]**4)/x[self.var_list.index('mu')]
                 Qm = Qv * results.F_total.max()
                 likelihood = (
                     likelihood + (-0.5 * (np.log(2 * np.pi * self.data['Qm'][1]**2)) -
@@ -344,8 +357,8 @@ class inversion:
             if 'Tcrys' in self.data.keys():
                 if self.SpreadingCentre is True:
                     TcrysMin, TcrysMax = geosetting.meltCrystallisationT(
-                        ShallowMeltP=False,
-                        MeltStorageP=False)
+                        ShallowMeltP=None,
+                        MeltStorageP=None)
                 else:
                     TcrysMin, TcrysMax = geosetting.meltCrystallisationT(
                         ShallowMeltP=x[self.var_list.index('P_lith')],
