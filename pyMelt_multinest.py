@@ -89,6 +89,7 @@ class inversion:
         The name to call the inversion, and the name of the folder to store the results in.
 
     """
+
     def __init__(self, lithologies, data, knowns, unknowns, SpreadingCentre=True,
                  ContinentalRift=False, Passive=True, Traces=False, MORBmelts=False,
                  TcrysShallow=True, buoyancy=False, buoyancyPx='kg1', resume=False,
@@ -202,6 +203,7 @@ class inversion:
             self.lithologies[i].DeltaS = x[1]
 
         run_model = True
+        print(x)
 
         if x[self.var_list.index('F_px')] + x[self.var_list.index('F_hz')] > 1.0:
             run_model = False
@@ -210,8 +212,8 @@ class inversion:
 
         if x[self.var_list.index('P_lith')] < x[self.var_list.index('P_cryst')]:
             run_model = False
-            likelihood = -1e10*np.exp(1 + x[self.var_list.index('P_lith')] +
-                                      x[self.var_list.index('P_cryst')])
+            likelihood = -1e10 * np.exp(1 + x[self.var_list.index('P_lith')] +
+                                        x[self.var_list.index('P_cryst')])
 
         if run_model is True:
             proportions = [(1.0 - x[self.var_list.index('F_hz')] - x[self.var_list.index('F_px')]),
@@ -229,6 +231,9 @@ class inversion:
                                                Pend=x[self.var_list.index('P_lith')],
                                                dP=-0.004,
                                                ReportSSS=False)
+            if results.F.iloc[-1] == 0:
+                likelihood = -1e12
+                return likelihood
 
             if self.Traces is True:
                 if self.MORBmelts is True:
@@ -236,9 +241,9 @@ class inversion:
                     Dy_px = 0.505 / (x[self.var_list.index('MORBmelts')] * (1 - 0.079) + 0.079)
                     Yb_px = 0.365 / (x[self.var_list.index('MORBmelts')] * (1 - 0.115) + 0.115)
                     results.calculateChemistry(
-                        elements={'lz': {'La': self.var_list.index('La_lz'),
-                                         'Dy': self.var_list.index('Dy_lz'),
-                                         'Yb': self.var_list.index('Yb_lz')},
+                        elements={'lz': {'La': x[self.var_list.index('La_lz')],
+                                         'Dy': x[self.var_list.index('Dy_lz')],
+                                         'Yb': x[self.var_list.index('Yb_lz')]},
                                   'px': {'La': La_px,
                                          'Dy': Dy_px,
                                          'Yb': Yb_px},
@@ -259,12 +264,12 @@ class inversion:
 
                 else:
                     results.calculateChemistry(
-                        elements={'lz': {'La': self.var_list.index('La_lz'),
-                                         'Dy': self.var_list.index('Dy_lz'),
-                                         'Yb': self.var_list.index('Yb_lz')},
-                                  'px': {'La': self.var_list.index('La_px'),
-                                         'Dy': self.var_list.index('Dy_px'),
-                                         'Yb': self.var_list.index('Yb_px')},
+                        elements={'lz': {'La': x[self.var_list.index('La_lz')],
+                                         'Dy': x[self.var_list.index('Dy_lz')],
+                                         'Yb': x[self.var_list.index('Yb_lz')]},
+                                  'px': {'La': x[self.var_list.index('La_px')],
+                                         'Dy': x[self.var_list.index('Dy_px')],
+                                         'Yb': x[self.var_list.index('Yb_px')]},
                                   'hz': m.chemistry.workman05_dmm},
                         cpxExhaustion={'lz': 0.18,
                                        'px': 0.70,
