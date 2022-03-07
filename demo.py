@@ -34,7 +34,7 @@ data = {
 # These are the parameters you don't want the inversion to find. For MORB P_lith and P_cryst must
 # be set to zero to use the calculated crustal thickness.
 knowns = {
-        'DeltaS':300
+        'DeltaS': 300
         }
 
 # These are the parameters for the inversion to find. The first item in the list is the type of
