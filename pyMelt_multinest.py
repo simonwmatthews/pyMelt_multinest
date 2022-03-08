@@ -148,7 +148,6 @@ class inversion:
                 variables.extend(['La_lz', 'Dy_lz', 'Yb_lz'])
                 if self.MORBmelts is True:
                     variables.extend(['MORBmelts'])
-
                 else:
                     variables.extend(['La_px', 'Dy_px', 'Yb_px'])
             else:
@@ -218,21 +217,23 @@ class inversion:
             proportions = [(1.0 - x[self.var_list.index('F_hz')] - x[self.var_list.index('F_px')]),
                            x[self.var_list.index('F_px')], x[self.var_list.index('F_hz')]]
             mantle = m.mantle(self.lithologies, proportions, self.lithology_names)
+            SolidusIntersectionP = max(mantle.solidusIntersection(x[self.var_list.index('Tp')]))
+            likelihood = 0
+
+            if SolidusIntersectionP < x[self.var_list.index('P_lith')]:
+                likelihood = -1e10 * np.exp(x[self.var_list.index('P_lith')] -
+                                            SolidusIntersectionP)
+                return likelihood
 
             if self.SpreadingCentre is True:
                 results = mantle.adiabaticMelt(Tp=x[self.var_list.index('Tp')],
-                                               Pstart=8.0,
                                                dP=-0.004,
                                                ReportSSS=False)
             else:
                 results = mantle.adiabaticMelt(Tp=x[self.var_list.index('Tp')],
-                                               Pstart=8.0,
                                                Pend=x[self.var_list.index('P_lith')],
                                                dP=-0.004,
                                                ReportSSS=False)
-            if (results.F.iloc[-1] and results.F.iloc[-2]) == 0:
-                likelihood = -1e12
-                return likelihood
 
             if self.Traces is True:
                 if self.MORBmelts is True:
@@ -313,7 +314,6 @@ class inversion:
                         weightingFunction=m.geosettings.weighting_expdecay,
                         weighting_wavelength=x[self.var_list.index('lambda')],
                         weighting_amplitude=x[self.var_list.index('amplitude')])
-            likelihood = 0
 
             if self.buoyancy is True or ('Qv' or 'Qb' or 'Qm') in self.data.keys():
                 ambient_rho = ((1.0 - x[self.var_list.index('ambientPx')] -
