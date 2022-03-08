@@ -203,7 +203,6 @@ class inversion:
             self.lithologies[i].DeltaS = x[1]
 
         run_model = True
-        print(x)
 
         if x[self.var_list.index('F_px')] + x[self.var_list.index('F_hz')] > 1.0:
             run_model = False
