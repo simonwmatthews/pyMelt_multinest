@@ -231,7 +231,7 @@ class inversion:
                                                Pend=x[self.var_list.index('P_lith')],
                                                dP=-0.004,
                                                ReportSSS=False)
-            if results.F.iloc[-1] == 0:
+            if (results.F.iloc[-1] and results.F.iloc[-2]) == 0:
                 likelihood = -1e12
                 return likelihood
 
