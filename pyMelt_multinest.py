@@ -217,7 +217,7 @@ class inversion:
             proportions = [(1.0 - x[self.var_list.index('F_hz')] - x[self.var_list.index('F_px')]),
                            x[self.var_list.index('F_px')], x[self.var_list.index('F_hz')]]
             mantle = m.mantle(self.lithologies, proportions, self.lithology_names)
-            SolidusIntersectionP = max(mantle.solidusIntersection(x[self.var_list.index('Tp')]))
+            SolidusIntersectionP = np.nanmax(mantle.solidusIntersection(x[self.var_list.index('Tp')]))
             likelihood = 0
 
             if SolidusIntersectionP < x[self.var_list.index('P_lith')]:
@@ -227,10 +227,12 @@ class inversion:
 
             if self.SpreadingCentre is True:
                 results = mantle.adiabaticMelt(Tp=x[self.var_list.index('Tp')],
+                                               Pstart=SolidusIntersectionP,
                                                dP=-0.004,
                                                ReportSSS=False)
             else:
                 results = mantle.adiabaticMelt(Tp=x[self.var_list.index('Tp')],
+                                               Pstart=SolidusIntersectionP,
                                                Pend=x[self.var_list.index('P_lith')],
                                                dP=-0.004,
                                                ReportSSS=False)
