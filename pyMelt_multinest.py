@@ -217,7 +217,6 @@ class inversion:
             likelihood = -1e10 * np.exp(1 + x[self.var_list.index('P_lith')] +
                                         x[self.var_list.index('P_cryst')])
 
-
         SolidusPressures = mantle.solidusIntersection(x[self.var_list.index('Tp')])
 
         if np.isnan(SolidusPressures).all() == True:
