@@ -207,32 +207,40 @@ class inversion:
             run_model = False
             likelihood = -1e10 * np.exp(1 + x[self.var_list.index('F_px')] +
                                         x[self.var_list.index('F_hz')])
+        else:
+            mantle = m.mantle(self.lithologies, proportions, self.lithology_names)
+            proportions = [(1.0 - x[self.var_list.index('F_hz')] - x[self.var_list.index('F_px')]),
+                           x[self.var_list.index('F_px')], x[self.var_list.index('F_hz')]]
 
         if x[self.var_list.index('P_lith')] < x[self.var_list.index('P_cryst')]:
             run_model = False
             likelihood = -1e10 * np.exp(1 + x[self.var_list.index('P_lith')] +
                                         x[self.var_list.index('P_cryst')])
 
-        if run_model is True:
-            proportions = [(1.0 - x[self.var_list.index('F_hz')] - x[self.var_list.index('F_px')]),
-                           x[self.var_list.index('F_px')], x[self.var_list.index('F_hz')]]
-            mantle = m.mantle(self.lithologies, proportions, self.lithology_names)
-            SolidusIntersectionP = np.nanmax(mantle.solidusIntersection(x[self.var_list.index('Tp')]))
-            likelihood = 0
 
-            if SolidusIntersectionP < x[self.var_list.index('P_lith')]:
-                likelihood = -1e10 * np.exp(x[self.var_list.index('P_lith')] -
-                                            SolidusIntersectionP)
-                return likelihood
+        SolidusPressures = mantle.solidusIntersection(x[self.var_list.index('Tp')])
+
+        if np.isnan(SolidusPressures).all() == True:
+            run_model = False
+            likelihood = -1e12
+        else:
+            self.SolidusIntersectionP = np.nanmax(SolidusPressures)
+            if self.SolidusIntersectionP < x[self.var_list.index('P_lith')]:
+                run_model = False
+                likelihood = -1e10 * np.exp(1 +  x[self.var_list.index('P_lith')] -
+                                            self.SolidusIntersectionP)
+
+        if run_model is True:
+            likelihood = 0
 
             if self.SpreadingCentre is True:
                 results = mantle.adiabaticMelt(Tp=x[self.var_list.index('Tp')],
-                                               Pstart=SolidusIntersectionP,
+                                               Pstart=self.SolidusIntersectionP,
                                                dP=-0.004,
                                                ReportSSS=False)
             else:
                 results = mantle.adiabaticMelt(Tp=x[self.var_list.index('Tp')],
-                                               Pstart=SolidusIntersectionP,
+                                               Pstart=self.SolidusIntersectionP,
                                                Pend=x[self.var_list.index('P_lith')],
                                                dP=-0.004,
                                                ReportSSS=False)
