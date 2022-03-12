@@ -200,34 +200,33 @@ class inversion:
 
         for i in range(len(self.lithologies)):
             self.lithologies[i].DeltaS = x[1]
-
         run_model = True
 
         if x[self.var_list.index('F_px')] + x[self.var_list.index('F_hz')] > 1.0:
             run_model = False
             likelihood = -1e10 * np.exp(1 + x[self.var_list.index('F_px')] +
                                         x[self.var_list.index('F_hz')])
-        else:
-            mantle = m.mantle(self.lithologies, proportions, self.lithology_names)
-            proportions = [(1.0 - x[self.var_list.index('F_hz')] - x[self.var_list.index('F_px')]),
-                           x[self.var_list.index('F_px')], x[self.var_list.index('F_hz')]]
 
-        if x[self.var_list.index('P_lith')] < x[self.var_list.index('P_cryst')]:
+        elif x[self.var_list.index('P_lith')] < x[self.var_list.index('P_cryst')]:
             run_model = False
             likelihood = -1e10 * np.exp(1 + x[self.var_list.index('P_lith')] +
                                         x[self.var_list.index('P_cryst')])
 
-        SolidusPressures = mantle.solidusIntersection(x[self.var_list.index('Tp')])
-
-        if np.isnan(SolidusPressures).all() == True:
-            run_model = False
-            likelihood = -1e12
         else:
-            self.SolidusIntersectionP = np.nanmax(SolidusPressures)
-            if self.SolidusIntersectionP < x[self.var_list.index('P_lith')]:
+            proportions = [(1.0 - x[self.var_list.index('F_hz')] - x[self.var_list.index('F_px')]),
+                           x[self.var_list.index('F_px')], x[self.var_list.index('F_hz')]]
+            mantle = m.mantle(self.lithologies, proportions, self.lithology_names)
+            SolidusPressures = mantle.solidusIntersection(x[self.var_list.index('Tp')])
+
+            if np.isnan(SolidusPressures).all() is True:
                 run_model = False
-                likelihood = -1e10 * np.exp(1 +  x[self.var_list.index('P_lith')] -
-                                            self.SolidusIntersectionP)
+                likelihood = -1e12
+            else:
+                self.SolidusIntersectionP = np.nanmax(SolidusPressures)
+                if self.SolidusIntersectionP < x[self.var_list.index('P_lith')]:
+                    run_model = False
+                    likelihood = -1e10 * np.exp(1 + x[self.var_list.index('P_lith')] -
+                                                self.SolidusIntersectionP)
 
         if run_model is True:
             likelihood = 0
