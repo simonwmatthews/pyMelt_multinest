@@ -60,6 +60,8 @@ class inversion:
         are a list of structure [PRIORTYPE,[low bound or mean, high bound or 1sd]. The prior type
         can be uniform ('uni'), log-uniform ('log-uni'), normal ('norm'), or log-normal
         ('lognorm').
+    DeltaP  float
+        Fixed integration pressure step in GPa.
     SpreadingCentre bool
         Model as a spreading center, or not? Default is True.
     ContinentalRift bool
@@ -89,7 +91,8 @@ class inversion:
         The name to call the inversion, and the name of the folder to store the results in.
 
     """
-    def __init__(self, lithologies, data, knowns, unknowns, SpreadingCentre=True,
+
+    def __init__(self, lithologies, data, knowns, unknowns, DeltaP=0.004, SpreadingCentre=True,
                  ContinentalRift=False, Passive=True, Traces=False, MORBmelts=False,
                  TcrysShallow=True, buoyancy=False, buoyancyPx='kg1', resume=False,
                  DensityFile='LithDensity_80kbar.csv', livepoints=400, name='default'):
@@ -102,6 +105,7 @@ class inversion:
         self.data = data
         self.lithologies = lithologies
         self.lithology_names = ['lz', 'px', 'hz']
+        self.DeltaP = DeltaP
         self.SpreadingCentre = SpreadingCentre
         self.ContinentalRift = ContinentalRift
         self.Passive = Passive
@@ -147,7 +151,6 @@ class inversion:
                 variables.extend(['La_lz', 'Dy_lz', 'Yb_lz'])
                 if self.MORBmelts is True:
                     variables.extend(['MORBmelts'])
-
                 else:
                     variables.extend(['La_px', 'Dy_px', 'Yb_px'])
             else:
@@ -200,7 +203,6 @@ class inversion:
 
         for i in range(len(self.lithologies)):
             self.lithologies[i].DeltaS = x[1]
-
         run_model = True
 
         if x[self.var_list.index('F_px')] + x[self.var_list.index('F_hz')] > 1.0:
@@ -208,26 +210,44 @@ class inversion:
             likelihood = -1e10 * np.exp(1 + x[self.var_list.index('F_px')] +
                                         x[self.var_list.index('F_hz')])
 
-        if x[self.var_list.index('P_lith')] < x[self.var_list.index('P_cryst')]:
+        elif x[self.var_list.index('P_lith')] < x[self.var_list.index('P_cryst')]:
             run_model = False
-            likelihood = -1e10*np.exp(1 + x[self.var_list.index('P_lith')] +
-                                      x[self.var_list.index('P_cryst')])
+            likelihood = -1e10 * np.exp(1 + x[self.var_list.index('P_lith')] +
+                                        x[self.var_list.index('P_cryst')])
 
-        if run_model is True:
+        else:
             proportions = [(1.0 - x[self.var_list.index('F_hz')] - x[self.var_list.index('F_px')]),
                            x[self.var_list.index('F_px')], x[self.var_list.index('F_hz')]]
             mantle = m.mantle(self.lithologies, proportions, self.lithology_names)
+            SolidusPressures = mantle.solidusIntersection(x[self.var_list.index('Tp')])
+
+            if np.isnan(SolidusPressures).all() is True:
+                run_model = False
+                likelihood = -1e12
+            else:
+                self.SolidusIntersectP = np.nanmax(SolidusPressures)
+                if self.SolidusIntersectP < x[self.var_list.index('P_lith')]:
+                    run_model = False
+                    likelihood = -1e10 * np.exp(1 + x[self.var_list.index('P_lith')] -
+                                                self.SolidusIntersectP)
+                elif abs(self.SolidusIntersectP - x[self.var_list.index('P_lith')]) < self.DeltaP:
+                    run_model = False
+                    likelihood = -1e10 * np.exp(1 + x[self.var_list.index('P_lith')] -
+                                                self.SolidusIntersectP)
+
+        if run_model is True:
+            likelihood = 0
 
             if self.SpreadingCentre is True:
                 results = mantle.adiabaticMelt(Tp=x[self.var_list.index('Tp')],
-                                               Pstart=8.0,
-                                               dP=-0.004,
+                                               Pstart=self.SolidusIntersectP,
+                                               dP=(-1)*self.DeltaP,
                                                ReportSSS=False)
             else:
                 results = mantle.adiabaticMelt(Tp=x[self.var_list.index('Tp')],
-                                               Pstart=8.0,
+                                               Pstart=self.SolidusIntersectP,
                                                Pend=x[self.var_list.index('P_lith')],
-                                               dP=-0.004,
+                                               dP=(-1)*self.DeltaP,
                                                ReportSSS=False)
 
             if self.Traces is True:
@@ -236,9 +256,9 @@ class inversion:
                     Dy_px = 0.505 / (x[self.var_list.index('MORBmelts')] * (1 - 0.079) + 0.079)
                     Yb_px = 0.365 / (x[self.var_list.index('MORBmelts')] * (1 - 0.115) + 0.115)
                     results.calculateChemistry(
-                        elements={'lz': {'La': self.var_list.index('La_lz'),
-                                         'Dy': self.var_list.index('Dy_lz'),
-                                         'Yb': self.var_list.index('Yb_lz')},
+                        elements={'lz': {'La': x[self.var_list.index('La_lz')],
+                                         'Dy': x[self.var_list.index('Dy_lz')],
+                                         'Yb': x[self.var_list.index('Yb_lz')]},
                                   'px': {'La': La_px,
                                          'Dy': Dy_px,
                                          'Yb': Yb_px},
@@ -259,12 +279,12 @@ class inversion:
 
                 else:
                     results.calculateChemistry(
-                        elements={'lz': {'La': self.var_list.index('La_lz'),
-                                         'Dy': self.var_list.index('Dy_lz'),
-                                         'Yb': self.var_list.index('Yb_lz')},
-                                  'px': {'La': self.var_list.index('La_px'),
-                                         'Dy': self.var_list.index('Dy_px'),
-                                         'Yb': self.var_list.index('Yb_px')},
+                        elements={'lz': {'La': x[self.var_list.index('La_lz')],
+                                         'Dy': x[self.var_list.index('Dy_lz')],
+                                         'Yb': x[self.var_list.index('Yb_lz')]},
+                                  'px': {'La': x[self.var_list.index('La_px')],
+                                         'Dy': x[self.var_list.index('Dy_px')],
+                                         'Yb': x[self.var_list.index('Yb_px')]},
                                   'hz': m.chemistry.workman05_dmm},
                         cpxExhaustion={'lz': 0.18,
                                        'px': 0.70,
@@ -309,7 +329,6 @@ class inversion:
                         weightingFunction=m.geosettings.weighting_expdecay,
                         weighting_wavelength=x[self.var_list.index('lambda')],
                         weighting_amplitude=x[self.var_list.index('amplitude')])
-            likelihood = 0
 
             if self.buoyancy is True or ('Qv' or 'Qb' or 'Qm') in self.data.keys():
                 ambient_rho = ((1.0 - x[self.var_list.index('ambientPx')] -
@@ -412,3 +431,4 @@ class inversion:
                      n_live_points=self.livepoints)
         json.dump(self.unknowns_list, open(self.name+'/params.json', 'w'))
         return result
+    
