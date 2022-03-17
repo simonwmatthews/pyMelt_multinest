@@ -61,7 +61,7 @@ class inversion:
         can be uniform ('uni'), log-uniform ('log-uni'), normal ('norm'), or log-normal
         ('lognorm').
     DeltaP  float
-        Fixed integration pressure step in GPa. 
+        Fixed integration pressure step in GPa.
     SpreadingCentre bool
         Model as a spreading center, or not? Default is True.
     ContinentalRift bool
@@ -225,27 +225,27 @@ class inversion:
                 run_model = False
                 likelihood = -1e12
             else:
-                self.SolidusIntersectionP = np.nanmax(SolidusPressures)
-                if self.SolidusIntersectionP < x[self.var_list.index('P_lith')]:
+                self.SolidusIntersectP = np.nanmax(SolidusPressures)
+                if self.SolidusIntersectP < x[self.var_list.index('P_lith')]:
                     run_model = False
                     likelihood = -1e10 * np.exp(1 + x[self.var_list.index('P_lith')] -
-                                                self.SolidusIntersectionP)
-                elif abs(self.SolidusInteractionP - x[self.var_list.index('P_lith')]) < self.DeltaP:
+                                                self.SolidusIntersectP)
+                elif abs(self.SolidusIntersectP - x[self.var_list.index('P_lith')]) < self.DeltaP:
                     run_model = False
                     likelihood = -1e10 * np.exp(1 + x[self.var_list.index('P_lith')] -
-                                                self.SolidusIntersectionP)
+                                                self.SolidusIntersectP)
 
         if run_model is True:
             likelihood = 0
 
             if self.SpreadingCentre is True:
                 results = mantle.adiabaticMelt(Tp=x[self.var_list.index('Tp')],
-                                               Pstart=self.SolidusIntersectionP,
+                                               Pstart=self.SolidusIntersectP,
                                                dP=(-1)*self.DeltaP,
                                                ReportSSS=False)
             else:
                 results = mantle.adiabaticMelt(Tp=x[self.var_list.index('Tp')],
-                                               Pstart=self.SolidusIntersectionP,
+                                               Pstart=self.SolidusIntersectP,
                                                Pend=x[self.var_list.index('P_lith')],
                                                dP=(-1)*self.DeltaP,
                                                ReportSSS=False)
