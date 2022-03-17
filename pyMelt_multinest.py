@@ -266,14 +266,14 @@ class inversion:
                         garnetOut={
                             'lz': m.chemistry.mineralTransition_linear(
                                 {'gradient': 1/666.7, 'intercept': 400/666.7}),
-                            'px': m.chemistry.mineralTransition_isobaric(15),
-                            'hz': m.chemistry.mineralTransition_isobaric(15)
+                            'px': m.chemistry.mineralTransition_isobaric(1.5),
+                            'hz': m.chemistry.mineralTransition_isobaric(1.5)
                                      },
                         spinelIn={
                             'lz': m.chemistry.mineralTransition_linear(
                                 {'gradient': 1/666.7, 'intercept': 533/666.7}),
-                            'px': m.chemistry.mineralTransition_isobaric(25),
-                            'hz': m.chemistry.mineralTransition_isobaric(25)
+                            'px': m.chemistry.mineralTransition_isobaric(2.5),
+                            'hz': m.chemistry.mineralTransition_isobaric(2.5)
                                      },
                         mineralProportions={'lz': m.chemistry.klb1_MineralProportions,
                                             'px': m.chemistry.kg1_MineralProportions,
@@ -292,12 +292,18 @@ class inversion:
                         cpxExhaustion={'lz': 0.18,
                                        'px': 0.70,
                                        'hz': 0.10},
-                        garnetInCoeffs={'lz': [666.7, 400.0],
-                                        'px': [666.7, 400.0],
-                                        'hz': [0.0, 0.0]},
-                        spinelOutCoeffs={'lz': [666.7, 533.0],
-                                         'px': [666.7, 533.0],
-                                         'hz': [0.0, 0.0]},
+                        garnetOut={
+                            'lz': m.chemistry.mineralTransition_linear(
+                                {'gradient': 1/666.7, 'intercept': 400/666.7}),
+                            'px': m.chemistry.mineralTransition_isobaric(1.5),
+                            'hz': m.chemistry.mineralTransition_isobaric(1.5)
+                                     },
+                        spinelIn={
+                            'lz': m.chemistry.mineralTransition_linear(
+                                {'gradient': 1/666.7, 'intercept': 533/666.7}),
+                            'px': m.chemistry.mineralTransition_isobaric(2.5),
+                            'hz': m.chemistry.mineralTransition_isobaric(2.5)
+                                     },
                         mineralProportions={'lz': m.chemistry.klb1_MineralProportions,
                                             'px': m.chemistry.kg1_MineralProportions,
                                             'hz': m.chemistry.klb1_MineralProportions}
