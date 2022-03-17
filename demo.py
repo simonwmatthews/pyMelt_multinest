@@ -64,10 +64,10 @@ unknowns = {
 # combinations of arguments has been entered.
 inv = mi.inversion(
     lithologies=[lz, px, hz],
-    deltaP=0.004,
     data=data,
     knowns=knowns,
     unknowns=unknowns,
+    DeltaP=0.004,
     SpreadingCentre=False,
     ContinentalRift=True,
     Passive=True,
