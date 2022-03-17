@@ -67,6 +67,7 @@ inv = mi.inversion(
     data=data,
     knowns=knowns,
     unknowns=unknowns,
+    DeltaP = 0.004,
     SpreadingCentre=False,
     ContinentalRift=True,
     Passive=False,
