@@ -60,8 +60,6 @@ class inversion:
         are a list of structure [PRIORTYPE,[low bound or mean, high bound or 1sd]. The prior type
         can be uniform ('uni'), log-uniform ('log-uni'), normal ('norm'), or log-normal
         ('lognorm').
-    DeltaP  float
-        Fixed integration pressure step in GPa.
     SpreadingCentre bool
         Model as a spreading center, or not? Default is True.
     ContinentalRift bool
@@ -71,9 +69,9 @@ class inversion:
     Traces     bool
         Model with trace element constraints or not? Default is False.
     MORBmelts  bool
-        Model pyroxenite traces with melts of MORB or not? Default is False
+        Model pyroxenite traces with batch melts of MORB or not? Default is False.
     TcrysShallow    bool
-        Use the shallow Tcrys endmember, as opposed to the deep endmember. Default is True
+        Use the shallow Tcrys endmember, as opposed to the deep endmember. Default is True.
     bouyancy    bool
         Require the solutions to be buoyant with respect to the defined ambient mantle properties.
         Default is False
@@ -92,7 +90,7 @@ class inversion:
 
     """
 
-    def __init__(self, lithologies, data, knowns, unknowns, DeltaP=0.004, SpreadingCentre=True,
+    def __init__(self, lithologies, data, knowns, unknowns, SpreadingCentre=True,
                  ContinentalRift=False, Passive=True, Traces=False, MORBmelts=False,
                  TcrysShallow=True, buoyancy=False, buoyancyPx='kg1', resume=False,
                  DensityFile='LithDensity_80kbar.csv', livepoints=400, name='default'):
@@ -105,7 +103,6 @@ class inversion:
         self.data = data
         self.lithologies = lithologies
         self.lithology_names = ['lz', 'px', 'hz']
-        self.DeltaP = DeltaP
         self.SpreadingCentre = SpreadingCentre
         self.ContinentalRift = ContinentalRift
         self.Passive = Passive
@@ -241,13 +238,13 @@ class inversion:
             if self.SpreadingCentre is True:
                 results = mantle.adiabaticMelt(Tp=x[self.var_list.index('Tp')],
                                                Pstart=self.SolidusIntersectP,
-                                               dP=(-1)*self.DeltaP,
+                                               dP=-0.004,
                                                ReportSSS=False)
             else:
                 results = mantle.adiabaticMelt(Tp=x[self.var_list.index('Tp')],
                                                Pstart=self.SolidusIntersectP,
                                                Pend=x[self.var_list.index('P_lith')],
-                                               dP=(-1)*self.DeltaP,
+                                               dP=-0.004,
                                                ReportSSS=False)
 
             if self.Traces is True:
@@ -266,12 +263,18 @@ class inversion:
                         cpxExhaustion={'lz': 0.18,
                                        'px': 0.70,
                                        'hz': 0.10},
-                        garnetInCoeffs={'lz': [666.7, 400.0],
-                                        'px': [666.7, 400.0],
-                                        'hz': [0.0, 0.0]},
-                        spinelOutCoeffs={'lz': [666.7, 533.0],
-                                         'px': [666.7, 533.0],
-                                         'hz': [0.0, 0.0]},
+                        garnetOut={
+                            'lz': m.chemistry.mineralTransition_linear(
+                                {'gradient': 1/666.7, 'intercept': 400/666.7}),
+                            'px': m.chemistry.mineralTransition_isobaric(15),
+                            'hz': m.chemistry.mineralTransition_isobaric(15)
+                                     },
+                        spinelIn={
+                            'lz': m.chemistry.mineralTransition_linear(
+                                {'gradient': 1/666.7, 'intercept': 533/666.7}),
+                            'px': m.chemistry.mineralTransition_isobaric(25),
+                            'hz': m.chemistry.mineralTransition_isobaric(25)
+                                     },
                         mineralProportions={'lz': m.chemistry.klb1_MineralProportions,
                                             'px': m.chemistry.kg1_MineralProportions,
                                             'hz': m.chemistry.klb1_MineralProportions}
