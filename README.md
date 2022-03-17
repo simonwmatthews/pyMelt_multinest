@@ -135,6 +135,8 @@ inv = mi.inversion(
     livepoints=400,
     name='test_inversion'
     )
+
+inv.run_multinest()
 ```
 
 This inversion object comprises the following parameters:
