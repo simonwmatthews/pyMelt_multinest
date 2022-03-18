@@ -16,6 +16,16 @@ import sys
 class inversion:
     """
     Inversion object. Contains all the methods required by pyMultiNest to run.
+    
+    The data for the inversion to match are:
+    'Tcrys' (crystallisation temperature in degC),
+    'tc' (crustal thickness in km),
+    'Fpx' (fraction of aggregate melts derived from pyroxenite),
+    'Qm' (melt flux in m3s-1),
+    'Qv' (volume flux in m3s-1),
+    'Qb' (buoyancy flux in Mgs-1),
+    'La_Yb' (La/Yb ratio of basalts)
+    'Dy_Yb' (Dy/Yb ratio of basalts)
 
     The parameters that must be defined collectively between knowns and unknowns are:
     Tp (mantle Tp in degC),
@@ -49,9 +59,7 @@ class inversion:
     lithologies     list
         List of the pyMelt lithology objects in the order lherzolite, pyroxenite, harzburgite.
     data    dict
-        Dictionary of the parameters and values for the inversion to match. Can include:
-        'tc' (crustal thickness), 'Tcrys' (crystallisation temperature in degC), 'Fpx' (fraction
-        of aggregate melts derived from pyroxenite), 'Q' (melt flux in m3s-1).
+        Dictionary of the parameters and values for the inversion to match.
     knowns  dict
         Parameters required by the melting model that are to be set as fixed. See above. Keys are
         parameter names, values are the parameter values.
