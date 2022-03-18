@@ -47,8 +47,7 @@ class inversion:
     mu (plume viscosity in Pa s-1)
 
     When trace element calculations are being used, the following must also be included in
-    knowns and
-    unknowns:
+    knowns and unknowns:
     La_lz, Dy_lz, Yb_lz (concentrations of La, Dy, and Yb in mantle lherzolite)
     La_px, Dy_px, Yb_px (concentrations of La, Dy, and Yb in mantle pyroxenite
                          if not using MORBmelts)
