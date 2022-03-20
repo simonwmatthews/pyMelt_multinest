@@ -8,7 +8,7 @@ from datetime import datetime
 
 
 # Enter the name of the model ran here:
-run_name = 'BVCClusterMPITestPassivePxGtSp'
+run_name = 'test'
 
 # This function provides a date for the model label.
 now = datetime.now()
