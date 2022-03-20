@@ -8,7 +8,7 @@ from datetime import datetime
 
 
 # Enter the name of the model ran here:
-run_name = 'BVCClusterTest'
+run_name = 'BVCClusterMPITestPassivePxGtSp'
 
 # This function provides a date for the model label.
 now = datetime.now()
@@ -42,7 +42,7 @@ knowns = {
 # prior this list is the range of values the inversion should consider. If it were a normally
 # distributed prior, use ['norm',[val,1sd]].
 unknowns = {
-    'Tp': ['uni', [1250, 2000]],
+    'Tp': ['uni', [1250, 1750]],
     'F_px': ['uni', [0, 1]],
     'F_hz': ['uni', [0, 1]],
     'P_lith': ['norm', [60*28.0/1000, 20*28.0/1000]],
@@ -56,8 +56,8 @@ unknowns = {
     'La_px': ['norm', [2.701, 2.701*0.1]],
     'Dy_px': ['norm', [3.2925, 3.2925*0.1]],
     'Yb_px': ['norm', [1.9975, 1.9975*0.1]],
-    'lambda': ['uni', [0.0, 1.0]],
-    'amplitude': ['uni', [0.0, 1.0]]
+#    'lambda': ['uni', [0.0, 1.0]],
+#    'amplitude': ['uni', [0.0, 1.0]]
             }
 
 # This is the inversion object. Make sure that for each of the knowns and unknowns the correct
@@ -67,10 +67,10 @@ inv = mi.inversion(
     data=data,
     knowns=knowns,
     unknowns=unknowns,
-    DeltaP = 0.004,
+    DeltaP=0.004,
     SpreadingCentre=False,
     ContinentalRift=True,
-    Passive=False,
+    Passive=True,
     Traces=True,
     MORBmelts=False,
     TcrysShallow=True,

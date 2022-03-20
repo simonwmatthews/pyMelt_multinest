@@ -16,6 +16,16 @@ import sys
 class inversion:
     """
     Inversion object. Contains all the methods required by pyMultiNest to run.
+    
+    The data for the inversion to match are:
+    'Tcrys' (crystallisation temperature in degC),
+    'tc' (crustal thickness in km),
+    'Fpx' (fraction of aggregate melts derived from pyroxenite),
+    'Qm' (melt flux in m3s-1),
+    'Qv' (volume flux in m3s-1),
+    'Qb' (buoyancy flux in Mgs-1),
+    'La_Yb' (La/Yb ratio of basalts)
+    'Dy_Yb' (Dy/Yb ratio of basalts)
 
     The parameters that must be defined collectively between knowns and unknowns are:
     Tp (mantle Tp in degC),
@@ -37,8 +47,7 @@ class inversion:
     mu (plume viscosity in Pa s-1)
 
     When trace element calculations are being used, the following must also be included in
-    knowns and
-    unknowns:
+    knowns and unknowns:
     La_lz, Dy_lz, Yb_lz (concentrations of La, Dy, and Yb in mantle lherzolite)
     La_px, Dy_px, Yb_px (concentrations of La, Dy, and Yb in mantle pyroxenite
                          if not using MORBmelts)
@@ -49,9 +58,7 @@ class inversion:
     lithologies     list
         List of the pyMelt lithology objects in the order lherzolite, pyroxenite, harzburgite.
     data    dict
-        Dictionary of the parameters and values for the inversion to match. Can include:
-        'tc' (crustal thickness), 'Tcrys' (crystallisation temperature in degC), 'Fpx' (fraction
-        of aggregate melts derived from pyroxenite), 'Q' (melt flux in m3s-1).
+        Dictionary of the parameters and values for the inversion to match.
     knowns  dict
         Parameters required by the melting model that are to be set as fixed. See above. Keys are
         parameter names, values are the parameter values.
@@ -266,12 +273,18 @@ class inversion:
                         cpxExhaustion={'lz': 0.18,
                                        'px': 0.70,
                                        'hz': 0.10},
-                        garnetInCoeffs={'lz': [666.7, 400.0],
-                                        'px': [666.7, 400.0],
-                                        'hz': [0.0, 0.0]},
-                        spinelOutCoeffs={'lz': [666.7, 533.0],
-                                         'px': [666.7, 533.0],
-                                         'hz': [0.0, 0.0]},
+                        garnetOut={
+                            'lz': m.chemistry.mineralTransition_linear(
+                                {'gradient': 1/666.7, 'intercept': 400/666.7}),
+                            'px': m.chemistry.mineralTransition_isobaric(1.5),
+                            'hz': m.chemistry.mineralTransition_isobaric(1.5)
+                                     },
+                        spinelIn={
+                            'lz': m.chemistry.mineralTransition_linear(
+                                {'gradient': 1/666.7, 'intercept': 533/666.7}),
+                            'px': m.chemistry.mineralTransition_isobaric(2.5),
+                            'hz': m.chemistry.mineralTransition_isobaric(2.5)
+                                     },
                         mineralProportions={'lz': m.chemistry.klb1_MineralProportions,
                                             'px': m.chemistry.kg1_MineralProportions,
                                             'hz': m.chemistry.klb1_MineralProportions}
@@ -289,12 +302,22 @@ class inversion:
                         cpxExhaustion={'lz': 0.18,
                                        'px': 0.70,
                                        'hz': 0.10},
-                        garnetInCoeffs={'lz': [666.7, 400.0],
-                                        'px': [666.7, 400.0],
-                                        'hz': [0.0, 0.0]},
-                        spinelOutCoeffs={'lz': [666.7, 533.0],
-                                         'px': [666.7, 533.0],
-                                         'hz': [0.0, 0.0]},
+                        garnetOut={
+                            'lz': m.chemistry.mineralTransition_linear(
+                                {'gradient': 1/666.7, 'intercept': 400/666.7}),
+                            'px': m.chemistry.mineralTransition_isobaric(
+                                {'transition_pressure': 1.5}),
+                            'hz': m.chemistry.mineralTransition_isobaric(
+                                {'transition_pressure': 1.5}),
+                                     },
+                        spinelIn={
+                            'lz': m.chemistry.mineralTransition_linear(
+                                {'gradient': 1/666.7, 'intercept': 533/666.7}),
+                            'px': m.chemistry.mineralTransition_isobaric(
+                                {'transition_pressure': 2.5}),
+                            'hz': m.chemistry.mineralTransition_isobaric(
+                                {'transition_pressure': 2.5}),
+                                     },
                         mineralProportions={'lz': m.chemistry.klb1_MineralProportions,
                                             'px': m.chemistry.kg1_MineralProportions,
                                             'hz': m.chemistry.klb1_MineralProportions}
