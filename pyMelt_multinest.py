@@ -276,15 +276,19 @@ class inversion:
                         garnetOut={
                             'lz': m.chemistry.mineralTransition_linear(
                                 {'gradient': 1/666.7, 'intercept': 400/666.7}),
-                            'px': m.chemistry.mineralTransition_isobaric(1.5),
-                            'hz': m.chemistry.mineralTransition_isobaric(1.5)
-                                     },
+                            'px': m.chemistry.mineralTransition_isobaric(
+                                {'transition_pressure': 1.5}),
+                            'hz': m.chemistry.mineralTransition_isobaric(
+                                {'transition_pressure': 1.5})
+                            },
                         spinelIn={
                             'lz': m.chemistry.mineralTransition_linear(
                                 {'gradient': 1/666.7, 'intercept': 533/666.7}),
-                            'px': m.chemistry.mineralTransition_isobaric(2.5),
-                            'hz': m.chemistry.mineralTransition_isobaric(2.5)
-                                     },
+                            'px': m.chemistry.mineralTransition_isobaric(
+                                {'transition_pressure': 2.5}),
+                            'hz': m.chemistry.mineralTransition_isobaric(
+                                {'transition_pressure': 2.5})
+                            },
                         mineralProportions={'lz': m.chemistry.klb1_MineralProportions,
                                             'px': m.chemistry.kg1_MineralProportions,
                                             'hz': m.chemistry.klb1_MineralProportions}
