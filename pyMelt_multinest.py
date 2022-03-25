@@ -452,7 +452,7 @@ class inversion:
 
     def run_multinest(self, verbose=True):
         if not os.path.exists(self.name):
-            os.mkdir(self.name)
+            os.makedirs(self.name, exist_ok=True)
         result = run(LogLikelihood=self.loglike, Prior=self.prior, n_dims=self.parameters,
                      outputfiles_basename=self.name+'/', resume=self.resume, verbose=verbose,
                      n_live_points=self.livepoints)
