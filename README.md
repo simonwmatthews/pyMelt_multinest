@@ -33,7 +33,7 @@ Next the data, knowns, and unknowns must be specified.
 * ```'Tcrys'```: melt liquidus/crystallisation temperature (&deg;C)
 * ```'tc'```: crustal thickness (km)
 * ```'Fpx'```: fraction of aggregate melts derived from pyroxenite
-* ```'Qm'```, ```'Qb'```, or ```'Qv'```: mantle plume melt flux (m<sup>3</sup> s<sup>-1</sup>), buoyancy flux (Mg s<sup>-1</sup>, and volume flux (m<sup>3</sup> s<sup>-1</sup>) respectively
+* ```'Qm'```, ```'Qb'```, or ```'Qv'```: mantle plume melt flux (m<sup>3</sup> s<sup>-1</sup>), buoyancy flux (Mg s<sup>-1</sup>), and volume flux (m<sup>3</sup> s<sup>-1</sup>) respectively
 * ```'La_Yb'``` and ```'Dy_Yb'```: La/Yb and Dy/Yb rare-earth element concentration ratios in generated basalts.
 
 ```data``` keys are the names of the parameters listed above, and ```data``` values are presented as a list of two values; the first being the parameter value; the second being its 1 standard deviation uncertainty.
