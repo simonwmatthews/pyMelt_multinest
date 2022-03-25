@@ -185,7 +185,7 @@ Please cite the pyMelt preprint, hosted on EarthArXiv. The latest release is v1.
 
 Matthews, S., Wong, K., & Gleeson, M. L. M. (2022). PyMelt: An extensible Python engine for mantle melting calculations. https://eartharxiv.org/repository/view/3101/
 
-An example of pyMelt_MultiNest in use, with an earlier version of pyMelt, can be found in the following manuscript:
+An example of pyMelt_MultiNest in use (with pyMelt v1.0) can be found in the following manuscript:
 
 Matthews, S., Wong, K., Shorttle, O., Edmonds, M., & Maclennan, J. (2021). Do olivine crystallization temperatures faithfully record mantle temperature variability? Geochemistry, Geophysics, Geosystems. https://doi.org/10.1029/2020GC009157
 
