@@ -79,7 +79,7 @@ inv = mi.inversion(
     resume=False,
     DensityFile='LithDensity_80kbar.csv',
     livepoints=400,
-    name=date+'_'+run_name+'_'+str(data['Tcrys'][0])+'_'+str(data['Tcrys'][1])
+    name=date+'_'+run_name+'_'+str(data['Tcrys'][0])+'_'+str(data['Tcrys'][1]+'/')
     )
 
 # Run the inversion
