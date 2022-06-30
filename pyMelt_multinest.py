@@ -16,16 +16,6 @@ import sys
 class inversion:
     """
     Inversion object. Contains all the methods required by pyMultiNest to run.
-    
-    The data for the inversion to match are:
-    'Tcrys' (crystallisation temperature in degC),
-    'tc' (crustal thickness in km),
-    'Fpx' (fraction of aggregate melts derived from pyroxenite),
-    'Qm' (melt flux in m3s-1),
-    'Qv' (volume flux in m3s-1),
-    'Qb' (buoyancy flux in Mgs-1),
-    'La_Yb' (La/Yb ratio of basalts)
-    'Dy_Yb' (Dy/Yb ratio of basalts)
 
     The parameters that must be defined collectively between knowns and unknowns are:
     Tp (mantle Tp in degC),
@@ -47,7 +37,8 @@ class inversion:
     mu (plume viscosity in Pa s-1)
 
     When trace element calculations are being used, the following must also be included in
-    knowns and unknowns:
+    knowns and
+    unknowns:
     La_lz, Dy_lz, Yb_lz (concentrations of La, Dy, and Yb in mantle lherzolite)
     La_px, Dy_px, Yb_px (concentrations of La, Dy, and Yb in mantle pyroxenite
                          if not using MORBmelts)
@@ -58,7 +49,9 @@ class inversion:
     lithologies     list
         List of the pyMelt lithology objects in the order lherzolite, pyroxenite, harzburgite.
     data    dict
-        Dictionary of the parameters and values for the inversion to match.
+        Dictionary of the parameters and values for the inversion to match. Can include:
+        'tc' (crustal thickness), 'Tcrys' (crystallisation temperature in degC), 'Fpx' (fraction
+        of aggregate melts derived from pyroxenite), 'Q' (melt flux in m3s-1).
     knowns  dict
         Parameters required by the melting model that are to be set as fixed. See above. Keys are
         parameter names, values are the parameter values.
@@ -136,7 +129,7 @@ class inversion:
         if self.buoyancy is True:
             variables.extend(['ambientTp', 'ambientPx', 'ambientHz'])
 
-            if ('Qv' or 'Qb' or 'Qm') in self.data.keys():
+            if 'Qv' in self.data.keys() or 'Qb' in self.data.keys() or 'Qm' in self.data.keys():
                 variables.extend(['r', 'mu'])
 
             self.rho = pd.read_csv(DensityFile)
@@ -166,7 +159,6 @@ class inversion:
                          )
 
         self.var_list = variables
-
         self.unknowns_list = list()
         for variable in self.var_list:
             if variable in self.unknowns is False and variable in self.knowns is False:
@@ -211,7 +203,6 @@ class inversion:
         for i in range(len(self.lithologies)):
             self.lithologies[i].DeltaS = x[1]
         run_model = True
-
         if x[self.var_list.index('F_px')] + x[self.var_list.index('F_hz')] > 1.0:
             run_model = False
             likelihood = -1e10 * np.exp(1 + x[self.var_list.index('F_px')] +
@@ -228,7 +219,8 @@ class inversion:
             mantle = m.mantle(self.lithologies, proportions, self.lithology_names)
             SolidusPressures = mantle.solidusIntersection(x[self.var_list.index('Tp')])
 
-            if np.isnan(SolidusPressures).all() is True:
+            SolidusPressureCheck = np.isnan(SolidusPressures).all()
+            if SolidusPressureCheck:
                 run_model = False
                 likelihood = -1e12
             else:
@@ -279,16 +271,16 @@ class inversion:
                             'px': m.chemistry.mineralTransition_isobaric(
                                 {'transition_pressure': 1.5}),
                             'hz': m.chemistry.mineralTransition_isobaric(
-                                {'transition_pressure': 1.5})
-                            },
+                                {'transition_pressure': 1.5}),
+                                     },
                         spinelIn={
                             'lz': m.chemistry.mineralTransition_linear(
                                 {'gradient': 1/666.7, 'intercept': 533/666.7}),
                             'px': m.chemistry.mineralTransition_isobaric(
                                 {'transition_pressure': 2.5}),
                             'hz': m.chemistry.mineralTransition_isobaric(
-                                {'transition_pressure': 2.5})
-                            },
+                                {'transition_pressure': 2.5}),
+                                     },
                         mineralProportions={'lz': m.chemistry.klb1_MineralProportions,
                                             'px': m.chemistry.kg1_MineralProportions,
                                             'hz': m.chemistry.klb1_MineralProportions}
@@ -334,7 +326,7 @@ class inversion:
                     geosetting = m.geosettings.spreadingCentre(
                         results, P_lithosphere=x[self.var_list.index('P_lith')],
                         extract_melt=True)
-                elif ('Qv' or 'Qb' or 'Qm') in self.data.keys():
+                else:
                     geosetting = m.geosettings.intraPlate(
                         results, P_lithosphere=x[self.var_list.index('P_lith')])
             else:
@@ -350,14 +342,14 @@ class inversion:
                         weightingFunction=m.geosettings.weighting_expdecay,
                         weighting_wavelength=x[self.var_list.index('lambda')],
                         weighting_amplitude=x[self.var_list.index('amplitude')])
-                elif ('Qv' or 'Qb' or 'Qm') in self.data.keys():
+                else:
                     geosetting = m.geosettings.intraPlate(
                         results, P_lithosphere=x[self.var_list.index('P_lith')],
                         weightingFunction=m.geosettings.weighting_expdecay,
                         weighting_wavelength=x[self.var_list.index('lambda')],
                         weighting_amplitude=x[self.var_list.index('amplitude')])
 
-            if self.buoyancy is True or ('Qv' or 'Qb' or 'Qm') in self.data.keys():
+            if self.buoyancy is True:
                 ambient_rho = ((1.0 - x[self.var_list.index('ambientPx')] -
                                 x[self.var_list.index('ambientHz')]) *
                                self.rhoLz(x[self.var_list.index('ambientTp')]) +
@@ -458,4 +450,3 @@ class inversion:
                      n_live_points=self.livepoints)
         json.dump(self.unknowns_list, open(self.name+'/params.json', 'w'))
         return result
-    
