@@ -414,18 +414,18 @@ class inversion:
                                       (2 * self.data['Tcrys'][1]**2)))
 
             if 'tc' in self.data.keys():
-                if (self.SpreadingCentre or self.ContinentalRift) is True:
+                if self.SpreadingCentre or self.ContinentalRift:
                     likelihood = (
                         likelihood + (-0.5 * (np.log(2 * np.pi * self.data['tc'][1]**2)) -
                                       (self.data['tc'][0] - geosetting.tc)**2 /
                                       (2 * self.data['tc'][1]**2)))
 
             if 'Fpx' in self.data.keys():
-                if (self.SpreadingCentre or self.ContinentalRift) is True:
+                if self.SpreadingCentre or self.ContinentalRift:
                     likelihood = (
                         likelihood + (-0.5*(np.log(2 * np.pi*self.data['Fpx'][1]**2)) -
                                       (self.data['Fpx'][0] -
-                                       geosetting.lithology_contributions[1])**2 /
+                                       geosetting.lithology_contributions['px'])**2 /
                                       (2*self.data['Fpx'][1]**2)))
 
             if self.Traces is True:
