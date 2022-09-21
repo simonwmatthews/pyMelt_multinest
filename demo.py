@@ -6,9 +6,9 @@ import pyMelt as m
 import pyMelt_multinest as mi
 
 # Define the lithology objects to be used
-lz = m.LithologyKLB1()
-px = m.LithologyKG1()
-hz = m.LithologyNonMelting()
+lz = m.lithologies.matthews.klb1()
+px = m.lithologies.matthews.kg1()
+hz = m.lithologies.shorttle.harzburgite()
 
 # These are the parameters the model should match. First item is the parameter value, the second is its 1 s.d. uncertainty.
 data = {'tc':[5.74,0.27],

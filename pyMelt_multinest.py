@@ -3,6 +3,7 @@
 
 import pyMelt as m
 import numpy as np
+from mpi4py import MPI
 from pymultinest.run import run
 from scipy.stats import norm
 from scipy.stats import lognorm
@@ -147,14 +148,18 @@ class inversion:
 
             mantle = m.mantle(self.lithologies,proportions,self.lithology_names)
             if self.SpreadingCenter == False:
-                results = mantle.AdiabaticMelt_1D(x[0],Pend=x[2],Pstart=10,ReportSSS=False)
+                results = mantle.adiabaticMelt(x[0],Pend=x[2],Pstart=8,ReportSSS=False)
             else:
-                results = mantle.AdiabaticMelt_1D(x[0],Pstart=10,ReportSSS=False)
+                results = mantle.adiabaticMelt(x[0],Pstart=8,ReportSSS=False)
             if self.SpreadingCenter == True:
-                results.integrate_tri()
+                geosetting = m.geosettings.spreadingCentre(results)
+            else:
+                geosetting = m.geosettings.intraPlate(results, x[2])
 
             likelihood = 0
 
+            # BUOYANCY CALCULATIONS CAN BE PERFORMED IN GEOSETTING CLASS NOW, SO THIS COULD BE
+            # SIMPLIFIED.
             if self.buoyancy == True or 'Q' in self.data.keys():
                 ambient_rho = ((1.0-x[7]-x[8])*self.rhoLz(x[6])+
                                    x[7]*self.rhoPx(x[6])+
@@ -180,9 +185,9 @@ class inversion:
 
             if 'Tcrys' in self.data.keys():
                 if self.SpreadingCenter == True:
-                    TcrysMin, TcrysMax = results.MeltCrystallisationT(ShallowMeltP=False,MeltStorageP=False)
+                    TcrysMin, TcrysMax = geosetting.meltCrystallisationT()
                 else:
-                    TcrysMin, TcrysMax = results.MeltCrystallisationT(ShallowMeltP=x[2],MeltStorageP=x[3])
+                    TcrysMin, TcrysMax = geosetting.meltCrystallisationT(ShallowMeltP=x[2], MeltStorageP=x[3])
 
                 if self.TcrysShallow == True:
                     likelihood = (likelihood + (-0.5*(np.log(2*np.pi*self.data['Tcrys'][1]**2))-
@@ -193,12 +198,12 @@ class inversion:
 
             if 'tc' in self.data.keys():
                 likelihood = (likelihood + (-0.5*(np.log(2*np.pi*self.data['tc'][1]**2))-
-                            (self.data['tc'][0]-results.tc)**2/(2*self.data['tc'][1]**2)))
+                            (self.data['tc'][0]-geosetting.tc)**2/(2*self.data['tc'][1]**2)))
 
             if 'Fpx' in self.data.keys():
                 if self.SpreadingCenter == True:
                     likelihood = (likelihood + (-0.5*(np.log(2*np.pi*self.data['Fpx'][1]**2))-
-                            (self.data['Fpx'][0]-results.tc_lithology_contributions[1])**2/(2*self.data['Fpx'][1]**2)))
+                            (self.data['Fpx'][0]-geosetting.lithology_contributions['px'])**2/(2*self.data['Fpx'][1]**2)))
 
         return likelihood
 
