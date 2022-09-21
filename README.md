@@ -1,10 +1,11 @@
 ## pyMelt_MultiNest
+The latest update to the repository should make it compatible with pyMelt v2.0, but it has not been seriously tested. There are also many possibilities for adding new constraints and streamlining the inversions which have not been taken advantage of here. It is probably best to proceed by making a bespoke version of the module (starting with this template) to solve your particular problem. Feel free to reach out to me (simonm@hi.is) for help with doing this.
+
 pyMelt can be used in conjunction with the MultiNest algorithm (Feroz and Hobson, 2008; Feroz et al., 2009, 2013) via its python frontend, pyMultinest (Buchner et al., 2014). This permits the inversion of measured data (e.g. crystallisation temperature, crustal thickness) to obtain unknowns (e.g. potential temperature) via Bayesian inference. More details of the inversion methods are provided in Matthews et al. (in review).
 
 For pyMelt_MultiNest to work, MultiNest and pyMultinest must be installed. The user is directed to the [pyMultinest installation instructions](https://johannesbuchner.github.io/PyMultiNest/) for further guidance.
 
-pyMelt_MultiNest is installed in a similar manner to pyMelt, through placing the pyMelt_multinest.py file in the working directory: 
-
+pyMelt_MultiNest is installed by placing the pyMelt_multinest.py file in the working directory: 
 
 ```python
 import pyMelt_multinest as mi
@@ -20,9 +21,9 @@ First define the lithology objects to be used in the inversion:
 
 
 ```python
-lz = m.LithologyKLB1()
-px = m.LithologyKG1()
-hz = m.LithologyNonMelting()
+lz = m.lithologies.matthews.klb1()
+px = m.lithologies.matthews.kg1()
+hz = m.lithologies.shorttle.harzburgite()
 ```
 
 Next the data, knowns, and unknowns must be specified.
