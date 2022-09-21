@@ -42,6 +42,8 @@ class inversion:
         uniform ('uni'), log-uniform ('log-uni'), normal ('norm'), or log-normal ('lognorm').
     SpreadingCenter bool
         Model as a spreading center, or not? Default is True.
+    ContinentalRift bool
+        Model as a magma-assisted continental rift, or not? Default is False.
     TcrysShallow    bool
         Use the shallow Tcrys endmember, as opposed to the deep endmember. Default is True
     bouyancy    bool
@@ -61,7 +63,7 @@ class inversion:
         The name to call the inversion, and the name of the folder to store the results in.
 
     """
-    def __init__(self,lithologies,data,knowns,unknowns,SpreadingCenter=True,
+    def __init__(self,lithologies,data,knowns,unknowns,SpreadingCenter=True, ContinentalRift=False,
                  TcrysShallow=True,buoyancy=False,buoyancyPx='kg1',resume=False,
                  DensityFile='LithDensity_80kbar.csv',livepoints=400,name='default'):
 
@@ -74,6 +76,7 @@ class inversion:
         self.lithologies = lithologies
         self.lithology_names = ['lz','px','hz']
         self.SpreadingCenter = SpreadingCenter
+        self.ContinentalRift = ContinentalRift
         self.TcrysShallow = TcrysShallow
         self.buoyancy = buoyancy
         self.buoyancyPx = buoyancyPx
@@ -83,7 +86,7 @@ class inversion:
         if self.buoyancy == False:
             self.var_list = ['Tp','DeltaS','P_lith','P_cryst','F_px','F_hz']
         else:
-            if 'Q' in self.data.keys():
+            if 'Qv' in self.data.keys() or 'Qb' in self.data.keys() or 'Qm' in self.data.keys():
                 self.var_list = ['Tp','DeltaS','P_lith','P_cryst','F_px','F_hz',
                              'ambientTp','ambientPx','ambientHz','r','mu']
             else:
@@ -173,10 +176,21 @@ class inversion:
 
                 buoyancy = ambient_rho - model_rho
 
-            if 'Q' in self.data.keys():
-                Q = np.pi/8 * (buoyancy * 9.81 * x[9]**4)/x[10] * results.F_total.max()
-                likelihood = (likelihood + (-0.5*(np.log(2*np.pi*self.data['Q'][1]**2))-
-                            (self.data['Q'][0]-Q)**2/(2*self.data['Q'][1]**2)))
+            if 'Qv' in self.data.keys():
+                Qv = np.pi/8 * (buoyancy * 9.81 * x[9]**4)/x[10] 
+                likelihood = (likelihood + (-0.5*(np.log(2*np.pi*self.data['Qv'][1]**2))-
+                            (self.data['Qv'][0]-Qv)**2/(2*self.data['Qv'][1]**2)))
+            
+            elif 'Qb' in self.data.keys():
+                Qv = np.pi/8 * (buoyancy * 9.81 * x[9]**4)/x[10] # In m3/s
+                Qb = (Qv/1e3) * model_rho * 40e-6 * (x[0]-x[6])  
+                likelihood = (likelihood + (-0.5*(np.log(2*np.pi*self.data['Qb'][1]**2))-
+                            (self.data['Qb'][0]-Qb)**2/(2*self.data['Qb'][1]**2)))
+                
+            elif 'Qm' in self.data.keys():
+                Qm = np.pi/8 * (buoyancy * 9.81 * x[9]**4)/x[10] * results.F_total.max()
+                likelihood = (likelihood + (-0.5*(np.log(2*np.pi*self.data['Qm'][1]**2))-
+                            (self.data['Qm'][0]-Qm)**2/(2*self.data['Qm'][1]**2)))
 
             if self.buoyancy == True:
                 if buoyancy < 0:
