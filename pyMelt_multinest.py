@@ -68,6 +68,8 @@ class inversion:
         Model as a magma-assisted continental rift, or not? Default is False.
     Passive    bool
         Model with passive upwelling, or not? Default is True.
+    SuperSolidus    bool
+        Allow supersolidus solutions or not? Default is True.
     Traces     bool
         Model with trace element constraints or not? Default is False.
     MORBmelts  bool
@@ -93,9 +95,10 @@ class inversion:
     """
 
     def __init__(self, lithologies, data, knowns, unknowns, DeltaP=0.004, SpreadingCentre=True,
-                 ContinentalRift=False, Passive=True, Traces=False, MORBmelts=False,
-                 TcrysShallow=True, buoyancy=False, buoyancyPx='kg1', resume=False,
-                 DensityFile='LithDensity_80kbar.csv', livepoints=400, name='default'):
+                 ContinentalRift=False, Passive=True, SuperSolidus=True, Traces=False,
+                 MORBmelts=False, TcrysShallow=True, buoyancy=False, buoyancyPx='kg1',
+                 resume=False, DensityFile='LithDensity_80kbar.csv', livepoints=400,
+                 name='default'):
 
         self.livepoints = livepoints
         self.name = name
@@ -109,6 +112,7 @@ class inversion:
         self.SpreadingCentre = SpreadingCentre
         self.ContinentalRift = ContinentalRift
         self.Passive = Passive
+        self.SuperSolidus = SuperSolidus
         self.Traces = Traces
         self.MORBmelts = MORBmelts
         self.TcrysShallow = TcrysShallow
@@ -225,6 +229,17 @@ class inversion:
                 likelihood = -1e12
             else:
                 self.SolidusIntersectP = np.nanmax(SolidusPressures)
+
+                if self.SuperSolidus is False:
+                    LzSolidusPressureCheck = np.isnan(SolidusPressures[0])
+                    PxSolidusPressureCheck = np.isnan(SolidusPressures[1])
+                    if LzSolidusPressureCheck:
+                        run_model = False
+                        likelihood = -1e12
+                    elif PxSolidusPressureCheck:
+                        run_model = False
+                        likelihood = -1e12
+    
                 if self.SolidusIntersectP < x[self.var_list.index('P_lith')]:
                     run_model = False
                     likelihood = -1e10 * np.exp(1 + x[self.var_list.index('P_lith')] -
@@ -235,18 +250,20 @@ class inversion:
                                                 self.SolidusIntersectP)
 
         if run_model is True:
+            # print(x)  # debugging
+            # print(self.var_list)  # debugging
             likelihood = 0
 
             if self.SpreadingCentre is True:
                 results = mantle.adiabaticMelt(Tp=x[self.var_list.index('Tp')],
                                                Pstart=self.SolidusIntersectP,
-                                               dP=(-1)*self.DeltaP,
+                                               dP=(-1)*abs(self.DeltaP),
                                                ReportSSS=False)
             else:
                 results = mantle.adiabaticMelt(Tp=x[self.var_list.index('Tp')],
                                                Pstart=self.SolidusIntersectP,
                                                Pend=x[self.var_list.index('P_lith')],
-                                               dP=(-1)*self.DeltaP,
+                                               dP=(-1)*abs(self.DeltaP),
                                                ReportSSS=False)
 
             if self.Traces is True:
@@ -426,7 +443,7 @@ class inversion:
                         likelihood + (-0.5*(np.log(2 * np.pi*self.data['Fpx'][1]**2)) -
                                       (self.data['Fpx'][0] -
                                        geosetting.lithology_contributions['px'])**2 /
-                                      (2*self.data['Fpx'][1]**2)))
+                                      (2 * self.data['Fpx'][1]**2)))
 
             if self.Traces is True:
                 La_Yb_ratio = geosetting.chemistry['La'] / geosetting.chemistry['Yb']
