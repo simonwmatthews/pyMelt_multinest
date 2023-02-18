@@ -80,7 +80,7 @@ inv = mi.inversion(
     resume=True,
     DensityFile='LithDensity_80kbar.csv',
     livepoints=400,
-    name='my_inversion'
+    name='run_name'
     )
 
 # Run the inversion
