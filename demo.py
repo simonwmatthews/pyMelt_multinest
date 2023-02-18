@@ -69,17 +69,18 @@ inv = mi.inversion(
     unknowns=unknowns,
     DeltaP=0.004,
     SpreadingCentre=False,
-    ContinentalRift=True,
+    ContinentalRift=False,
     Passive=True,
+    SuperSolidus=True,
     Traces=True,
     MORBmelts=False,
     TcrysShallow=True,
-    buoyancy=True,
+    buoyancy=False,
     buoyancyPx='kg1',
-    resume=False,
+    resume=True,
     DensityFile='LithDensity_80kbar.csv',
     livepoints=400,
-    name=date+'_'+run_name+'_'+str(data['Tcrys'][0])+'_'+str(data['Tcrys'][1]+'/')
+    name='my_inversion'
     )
 
 # Run the inversion
