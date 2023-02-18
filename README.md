@@ -11,9 +11,10 @@ import pyMelt as m
 import pyMelt_multinest as mi
 ```
 
-If operating on a Linux installation, the latest version can be downloaded from the [code repository](https://github.com/simonwmatthews?tab=repositories) and installed locally:
+If operating on a Linux installation, the latest versions of pyMelt and pyMelt_MultiNest can be downloaded from the [code repository](https://github.com/simonwmatthews/pyMelt) and installed locally:
 
 ```shell
+$ git clone https://github.com/simonwmatthews/pyMelt
 $ git clone https://github.com/simonwmatthews/pyMelt_multinest
 ```
 
