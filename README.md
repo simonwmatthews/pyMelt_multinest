@@ -1,9 +1,9 @@
-## PyMelt_MultiNest (pyMelt v1.960)
-PyMelt can be used in conjunction with the MultiNest algorithm (Feroz and Hobson, 2008; Feroz et al., 2009, 2013) via its Python frontend, pyMultinest (Buchner et al., 2014). This permits the inversion of measured data (e.g. crystallisation temperature, crustal thickness, or rare-earth element concentration ratios) to obtain unknowns (e.g. potential temperature) via Bayesian inference. More details of the inversion methods are provided in Matthews et al. (2021).
+## pyMelt_MultiNest (pyMelt v2.0)
+pyMelt can be used in conjunction with the MultiNest algorithm (Feroz and Hobson, 2008; Feroz et al., 2009, 2013) via its Python frontend, pyMultinest (Buchner et al., 2014). This permits the inversion of measured data (e.g. crystallisation temperature, crustal thickness, or rare-earth element concentration ratios) to obtain unknowns (e.g. potential temperature) via Bayesian inference. More details of the inversion methods are provided in Matthews et al. (2021).
 
-For pyMelt_MultiNest to work, MultiNest and pyMultinest must be installed, as well as ```pymelt```, ```numpy```, ```scipy```, and ```pandas```. The user is directed to the [pyMultinest installation instructions](https://johannesbuchner.github.io/PyMultiNest/) for further guidance.
+For pyMelt_MultiNest to work, MultiNest and pyMultinest must be installed, as well as ```pyMelt```, ```numpy```, ```scipy```, and ```pandas```. The user is directed to the [pyMultinest installation instructions](https://johannesbuchner.github.io/PyMultiNest/) for further guidance.
 
-PyMelt_MultiNest is installed through placing the pyMelt_multinest.py file in the working directory: 
+pyMelt_MultiNest is installed through placing the pyMelt_multinest.py file in the working directory: 
 
 
 ```python
@@ -125,6 +125,7 @@ inv = mi.inversion(
     SpreadingCentre=True,
     ContinentalRift=False,
     Passive=True,
+    SuperSolidus=True
     Traces=False,
     MORBmelts=False,
     TcrysShallow=True,
@@ -149,6 +150,7 @@ This inversion object comprises the following parameters:
 * ```SpreadingCentre```: option to model as a spreading centre, set to ```True``` by default.
 * ```ContinentalRift```: option to model as a continental rift, set to ```False``` by default.
 * ```Passive```: option to model as passive upwelling, set to ```True``` by default. If set to ```False```, exponentially decaying active upwelling will be considered.
+* ```SuperSolidus```: option to include supersolidus melts (```True```), or restrict inversion to subsolidus starts (```False```).
 * ```Traces```: option to use La/Yb and Dy/Yb ratios as a constraint, set to ```False``` by default.
 * ```MORBmelts```: option to use batch melts of DMM mantle for La/Yb and Dy/Yb compositions of pyroxenite, set to ```False``` by default.
 * ```TcrysShallow```: option to use the shallow Tcrys endmember as opposed to the deep endmember, set to ```True``` by default.
@@ -181,13 +183,15 @@ Results will be returned as a median value and a standard deviation, with more d
 
 ## Citing pyMelt and pyMelt_MultiNest
 
-Please cite the pyMelt preprint, hosted on EarthArXiv. The latest release is v1.960.
+Please cite the pyMelt manuscript in Volcanica. The latest release is v2.0.
 
-Matthews, S., Wong, K., & Gleeson, M. L. M. (2022). PyMelt: An extensible Python engine for mantle melting calculations. https://eartharxiv.org/repository/view/3101/
+Matthews, S., Wong, K. and Gleeson, M. (2022) “pyMelt: An extensible Python engine for mantle melting calculations”, Volcanica, 5(2), pp. 469–475. doi: 10.30909/vol.05.02.469475.
 
-An example of pyMelt_MultiNest in use (with pyMelt v1.0) can be found in the following manuscript:
+Examples of pyMelt_MultiNest in use (with pyMelt v.1.960 and v1.0 respectively) can be found in the following manuscripts:
 
-Matthews, S., Wong, K., Shorttle, O., Edmonds, M., & Maclennan, J. (2021). Do olivine crystallization temperatures faithfully record mantle temperature variability? Geochemistry, Geophysics, Geosystems. https://doi.org/10.1029/2020GC009157
+Wong, K., Ferguson, D., Matthews, S., Morgan, D., Tadesse, A. Z., Sinetebeb, Y., & Yirgu, G. (2022). Exploring rift geodynamics in Ethiopia through olivine-spinel Al-exchange thermometry and rare-earth element distributions. Earth and Planetary Science Letters, 597, 117820. https://doi.org/10.1016/j.epsl.2022.117820
+
+Matthews, S., Wong, K., Shorttle, O., Edmonds, M., & Maclennan, J. (2021). Do olivine crystallization temperatures faithfully record mantle temperature variability?. Geochemistry, Geophysics, Geosystems, 22(4), e2020GC009157. https://doi.org/10.1029/2020GC009157
 
 If pyMelt is used with pyMultinest, please additionally cite the following papers which detail the development and introduction of MultiNest and pyMultinest:
 
