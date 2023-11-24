@@ -182,6 +182,10 @@ $ python multinest_marginals.py OUTPUT_FOLDER_NAME/
 
 Results will be returned as a median value and a standard deviation, with more detailed data provided in the stats.json file generated. Marginal plots are also generated in .pdf and .png format.
 
+## Extras
+
+Also included in this repository is the folder 'iterative olivine addition' containing a py file and notebook demonstrating the olivine projection method used by Matthews et al. (2021) and Wong et al. (2022), and 'pymelt_interpreter.ipynb' for manipulating the solutions generated through the pyMelt_MultiNest process. Example solutions are provided in 'pyMelt_demoFiles'.
+
 ## Citing pyMelt and pyMelt_MultiNest
 
 Please cite the pyMelt manuscript in Volcanica. The latest release is v2.0.
