@@ -190,7 +190,7 @@ Also included in this repository is the folder 'iterative olivine addition' cont
 
 Please cite the pyMelt manuscript in Volcanica. The latest release is v2.0.
 
-Matthews, S., Wong, K. and Gleeson, M. (2022) “pyMelt: An extensible Python engine for mantle melting calculations”, Volcanica, 5(2), pp. 469–475. doi: 10.30909/vol.05.02.469475.
+Matthews, S., Wong, K. and Gleeson, M. (2022) “pyMelt: An extensible Python engine for mantle melting calculations”, Volcanica, 5(2), pp. 469–475. https://doi.org/10.30909/vol.05.02.469475
 
 Examples of pyMelt_MultiNest in use (with pyMelt v.1.960 and v1.0 respectively) can be found in the following manuscripts:
 
