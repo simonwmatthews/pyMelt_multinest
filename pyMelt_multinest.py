@@ -3,6 +3,7 @@
 
 import pyMelt as m
 import numpy as np
+from mpi4py import MPI
 from pymultinest.run import run
 from scipy.stats import norm
 from scipy.stats import lognorm
@@ -302,7 +303,6 @@ class inversion:
                                             'px': m.chemistry.kg1_MineralProportions,
                                             'hz': m.chemistry.klb1_MineralProportions}
                         )
-
                 else:
                     results.calculateChemistry(
                         elements={'lz': {'La': x[self.var_list.index('La_lz')],
@@ -431,6 +431,7 @@ class inversion:
                                       (2 * self.data['Tcrys'][1]**2)))
 
             if 'tc' in self.data.keys():
+
                 if self.SpreadingCentre or self.ContinentalRift:
                     likelihood = (
                         likelihood + (-0.5 * (np.log(2 * np.pi * self.data['tc'][1]**2)) -
