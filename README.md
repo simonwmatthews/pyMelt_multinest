@@ -1,7 +1,7 @@
 ## pyMelt_MultiNest (pyMelt v2.0)
 pyMelt can be used in conjunction with the MultiNest algorithm (Feroz and Hobson, 2008; Feroz et al., 2009, 2013) via its Python frontend, pyMultiNest (Buchner et al., 2014). This permits the inversion of measured data (e.g., crystallisation temperature, crustal thickness, or rare-earth element concentration ratios) to obtain unknowns (e.g., potential temperature) via Bayesian inference. More details of the inversion methods are provided in Matthews et al. (2021) and Wong et al. (2022).
 
-For pyMelt_MultiNest to work, MultiNest and pyMultiNest must be installed, as well as ```pyMelt```, ```numpy```, ```scipy```, and ```pandas```. The user is directed to the [pyMultiNest installation instructions](https://johannesbuchner.github.io/PyMultiNest/) for further guidance.
+For pyMelt_MultiNest to work, MultiNest and pyMultiNest must be installed, as well as ```pyMelt``` and its dependencies. The user is directed to the [pyMultiNest installation instructions](https://johannesbuchner.github.io/PyMultiNest/) for further guidance.
 
 pyMelt_MultiNest is installed through placing the pyMelt_multinest.py file in the working directory: 
 
@@ -18,7 +18,13 @@ $ git clone https://github.com/simonwmatthews/pyMelt
 $ git clone https://github.com/simonwmatthews/pyMelt_multinest
 ```
 
-First define the lithology objects to be used in the inversion:
+```pyMelt``` can also be installed via the ```pip``` installation package:
+
+```shell
+$ pip install pyMelt
+```
+
+To use pyMelt_MultiNest, we first define the lithology objects that we are going to use in the inversion to create our mantle:
 
 
 ```python
